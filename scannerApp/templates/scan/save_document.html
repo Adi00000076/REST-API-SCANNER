@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Document</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"> <!-- Optional: Include your CSS file -->
+</head>
+<body>
+    <header>
+        <h1>Save Document</h1>
+    </header>
+    <main>
+        {% if error %}
+            <div class="error-message">
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+        <form action="{% url 'save-document' %}" method="post">
+            {% csrf_token %}
+            <div>
+                <label for="fileName">File Name:</label>
+                <input type="text" id="fileName" name="fileName" required>
+            </div>
+            <div>
+                <label for="format">Format:</label>
+                <select id="format" name="format" required>
+                    <option value="">Select format</option>
+                    <option value="pdf">PDF</option>
+                    <option value="jpg">JPG</option>
+                    <option value="png">PNG</option>
+                </select>
+            </div>
+            <div>
+                <label for="pages">Number of Pages:</label>
+                <input type="number" id="pages" name="pages" min="1" required>
+            </div>
+            <div>
+                <label for="customInfo">Custom Information:</label>
+                <textarea id="customInfo" name="customInfo" rows="4" cols="50"></textarea>
+            </div>
+            <button type="submit">Save Document</button>
+        </form>
+    </main>
+    <footer>
+        <a href="{% url 'home' %}">Back to Home</a>
+    </footer>
+</body>
+</html>

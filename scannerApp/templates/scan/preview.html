@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HP PS 100 Scanner Interface</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container-fluid">
+        <header>
+            <h1>Scan and Upload Documents - Scanning Process</h1>
+        </header>
+
+        <main>
+            <div class="row">
+                <!-- Preview Column -->
+                <div class="col-lg-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">Image Preview</h2>
+                            <div class="thumbnail-container">
+                                {% if image_urls %}
+                                    <img src="{{ image_urls.0 }}" alt="Scanned Image" class="thumbnail" id="preview-image" style="width: 100%;">
+                                    <div class="thumbnail-overlay">
+                                        <button class="btn btn-danger" onclick="closeThumbnail()">❌</button>
+                                        <button class="btn btn-secondary" onclick="rotateThumbnail()">🔄</button>
+                                    </div>
+                                {% else %}
+                                    <p>No image to preview.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Gallery Column -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">Image Gallery</h2>
+                            <div class="image-gallery">
+                                {% for image_url in image_urls %}
+                                    <div class="image-item mb-2">
+                                        <img src="{{ image_url }}" alt="Scanned Image" onclick="selectImage('{{ image_url }}')">
+                                    </div>
+                                {% empty %}
+                                    <p>No images to display.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scanner Controls Column -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">Ready to Scan</h3>
+                            <div class="form-group">
+                                <label for="model-select">HP PS Model:</label>
+                                <select id="model-select" class="form-control">
+                                    <option value="hp-ps100">HP PS 100</option>
+                                </select>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="auto-scan" class="form-check-input">
+                                <label for="auto-scan" class="form-check-label">Auto Scan</label>
+                            </div>
+                            <button class="btn btn-primary" onclick="startScan()">Scan</button>
+                            <div class="mt-2">
+                                <button class="btn btn-secondary" onclick="showModal('scan-settings-modal')">Scan Settings</button>
+                            </div>
+
+                            <section class="actions mt-2">
+                                <button class="btn btn-warning" onclick="showModal('crop-section-modal')">Crop</button>
+                                <button class="btn btn-info" onclick="showModal('edit-popup-modal')">Edit</button>
+                            </section>
+
+                            <button class="btn btn-secondary" onclick="zoomOut()">- Zoom Out</button>
+                            <button class="btn btn-secondary" onclick="zoomIn()">+ Zoom In</button>
+
+                            <div class="settings-icon mt-2">
+                                <button class="btn btn-secondary settings-btn" onclick="toggleSettingsDialog()">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="btn btn-secondary settings-btn">
+                                    <i class="fas fa-file"></i> Save As
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-dialog hidden" id="settings-dialog">
+                <div class="settings-dialog-content">
+                    <span class="close-dialog" onclick="closeSettingsDialog()">❌</span>
+                    <h3>Settings</h3>
+                    <div class="tabs">
+                        <button class="tab-link active" onclick="openTab(event, 'scan-settings-tab')">Scan Settings</button>
+                        <button class="tab-link" onclick="openTab(event, 'device-settings-tab')">Device Settings</button>
+                        <button class="tab-link" onclick="openTab(event, 'about-tab')">About</button>
+                        <button class="tab-link" onclick="openTab(event, 'support-tab')">Support</button>
+                    </div>
+                    <div class="tab-content active" id="scan-settings-tab">
+                        <h4>Scan Settings</h4>
+                        <div class="setting-item">
+                            <label for="default-color-mode">Default Color Mode:</label>
+                            <select id="default-color-mode">
+                                <option value="Color">Color</option>
+                                <option value="Grayscale">Grayscale</option>
+                                <option value="BlackWhite">Black & White</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="default-resolution">Default Resolution (DPI):</label>
+                            <select id="default-resolution">
+                                <option value="150">150 DPI</option>
+                                <option value="300">300 DPI</option>
+                                <option value="600">600 DPI</option>
+                                <option value="1200">1200 DPI</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <input type="checkbox" id="default-auto-scan">
+                            <label for="default-auto-scan">Auto Scan by Default</label>
+                        </div>
+                    </div>
+                    <div class="tab-content hidden" id="device-settings-tab">
+                        <h4>Device Settings</h4>
+                        <p>Device Model: HP PS 100</p>
+                        <p>Serial Number: 1234567890</p>
+                        <p>Firmware Version: 1.0.0</p>
+                    </div>
+                    <div class="tab-content hidden" id="about-tab">
+                        <h4>About</h4>
+                        <p>HP PS 100 Scanner Interface</p>
+                        <p>Version: 1.0.0</p>
+                        <p>© 2024 Infyz Scanner. All rights reserved.</p>
+                    </div>
+                    <div class="tab-content hidden" id="support-tab">
+                        <h4>Support</h4>
+                        <p>For support, please contact:</p>
+                        <p>Infyz Support</p>
+                        <p>Email: support@infyz.com</p>
+                        <p>Phone: +1-800-123-4567</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scan Settings Modal -->
+            <div class="modal" id="scan-settings-modal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Scan Settings</h5>
+                            <button type="button" class="btn-close" onclick="hideModal('scan-settings-modal')">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="page-size">Page Size:</label>
+                                <select id="page-size" class="form-control" onchange="checkPageSize()">
+                                    <option value="A4">A4</option>
+                                    <option value="A3">A3</option>
+                                    <option value="Letter">Letter</option>
+                                    <option value="Custom">Custom</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="custom-size">Custom Size (in inches):</label>
+                                <input type="text" id="custom-size" class="form-control" placeholder="e.g., 8.5 x 11" onblur="validateCustomSize()">
+                            </div>
+                            <div class="form-group">
+                                <label for="color-mode">Color Mode:</label>
+                                <select id="color-mode" class="form-control">
+                                    <option value="Color">Color</option>
+                                    <option value="Grayscale">Grayscale</option>
+                                    <option value="BlackWhite">Black & White</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="resolution">Resolution (DPI):</label>
+                                <select id="resolution" class="form-control">
+                                    <option value="150">150 DPI</option>
+                                    <option value="300">300 DPI</option>
+                                    <option value="600">600 DPI</option>
+                                    <option value="1200">1200 DPI</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crop Section Modal -->
+            <div class="modal" id="crop-section-modal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Crop and Rotate</h5>
+                            <button type="button" class="btn-close" onclick="hideModal('crop-section-modal')">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <canvas id="image-canvas"></canvas>
+                            <div class="crop-controls">
+                                <button class="btn btn-warning" onclick="rotateImage()">🔄 Rotate</button>
+                                <button class="btn btn-success" onclick="cropImage()">✂️ Crop</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Popup Modal -->
+            <div class="modal" id="edit-popup-modal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Image</h5>
+                            <button type="button" class="btn-close" onclick="hideModal('edit-popup-modal')">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <h4>Adjust Brightness</h4>
+                            <input type="range" id="brightness-slider" min="0" max="2" step="0.1" value="1" oninput="adjustBrightness()">
+                            <div class="preview">
+                                <canvas id="edit-image-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="text/javascript">
+        let currentImageUrl = null;
+        let currentImageCanvas = null;
+
+        function loadImageForPreview(imgUrl) {
+            currentImageUrl = imgUrl;
+            const thumbnailContainer = document.getElementById('preview-image');
+            thumbnailContainer.src = imgUrl;
+            initializeCanvas(imgUrl);
+        }
+
+        function initializeCanvas(imgUrl) {
+            const canvas = document.getElementById('image-canvas');
+            const context = canvas.getContext('2d');
+
+            const image = new Image();
+            image.src = imgUrl;
+
+            image.onload = () => {
+                canvas.width = image.width;
+                canvas.height = image.height;
+                context.drawImage(image, 0, 0);
+                currentImageCanvas = canvas;
+            };
+        }
+
+        function rotateImage() {
+            if (!currentImageCanvas) return;
+
+            const context = currentImageCanvas.getContext('2d');
+            const image = new Image();
+            image.src = currentImageUrl;
+
+            image.onload = () => {
+                const angle = 90; // Rotate by 90 degrees
+                const { width, height } = image;
+
+                currentImageCanvas.width = height;
+                currentImageCanvas.height = width;
+
+                context.clearRect(0, 0, currentImageCanvas.width, currentImageCanvas.height);
+                context.translate(currentImageCanvas.width / 2, currentImageCanvas.height / 2);
+                context.rotate(angle * Math.PI / 180);
+                context.drawImage(image, -width / 2, -height / 2);
+            };
+        }
+
+        function cropImage() {
+            if (!currentImageCanvas) return;
+
+            // Example cropping implementation
+            const context = currentImageCanvas.getContext('2d');
+            const croppedWidth = currentImageCanvas.width / 2;
+            const croppedHeight = currentImageCanvas.height / 2;
+            const croppedImage = context.getImageData(0, 0, croppedWidth, croppedHeight);
+
+            currentImageCanvas.width = croppedWidth;
+            currentImageCanvas.height = croppedHeight;
+            context.putImageData(croppedImage, 0, 0);
+        }
+
+        function adjustBrightness() {
+            const slider = document.getElementById('brightness-slider');
+            const brightness = parseFloat(slider.value);
+
+            const canvas = document.getElementById('edit-image-canvas');
+            const context = canvas.getContext('2d');
+
+            const image = new Image();
+            image.src = currentImageUrl;
+
+            image.onload = () => {
+                canvas.width = image.width;
+                canvas.height = image.height;
+                context.drawImage(image, 0, 0);
+
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = data[i] * brightness;       // Red
+                    data[i + 1] = data[i + 1] * brightness; // Green
+                    data[i + 2] = data[i + 2] * brightness; // Blue
+                }
+
+                context.putImageData(imageData, 0, 0);
+            };
+        }
+
+        function selectImage(imgUrl) {
+            loadImageForPreview(imgUrl);
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('show');
+            }
+        }
+
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        function toggleSettingsDialog() {
+            const dialog = document.getElementById('settings-dialog');
+            dialog.classList.toggle('hidden');
+        }
+
+        function closeSettingsDialog() {
+            const dialog = document.getElementById('settings-dialog');
+            dialog.classList.add('hidden');
+        }
+
+        function openTab(evt, tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+
+            const tabLinks = document.querySelectorAll('.tab-link');
+            tabLinks.forEach(link => link.classList.remove('active'));
+
+            document.getElementById(tabId).classList.remove('hidden');
+            evt.currentTarget.classList.add('active');
+        }
+
+        let zoomLevel = 1; // Default zoom level
+
+function zoomIn() {
+    zoomLevel += 0.1; // Increment zoom level
+    applyZoom();
+}
+
+function zoomOut() {
+    zoomLevel = Math.max(0.1, zoomLevel - 0.1); // Decrement zoom level, with a minimum limit
+    applyZoom();
+}
+
+function applyZoom() {
+    const previewImage = document.getElementById('preview-image');
+    if (previewImage) {
+        previewImage.style.transform = `scale(${zoomLevel})`;
+    }
+}
+
+
+        function checkPageSize() {
+            const pageSize = document.getElementById('page-size').value;
+            const customSizeField = document.getElementById('custom-size');
+            
+            if (pageSize === 'Custom') {
+                customSizeField.classList.remove('hidden');
+            } else {
+                customSizeField.classList.add('hidden');
+            }
+        }
+
+        function validateCustomSize() {
+            // Basic validation for custom size
+            const customSize = document.getElementById('custom-size').value;
+            const regex = /^\d+(\.\d+)? x \d+(\.\d+)?$/;
+            if (!regex.test(customSize)) {
+                alert('Invalid custom size format. Please use the format "width x height"');
+            }
+        }
+
+        function closeThumbnail() {
+            const img = document.getElementById('preview-image');
+            img.style.display = 'none';
+        }
+
+        function rotateThumbnail() {
+            const img = document.getElementById('preview-image');
+            let currentRotation = parseInt(img.getAttribute('data-rotation')) || 0;
+            currentRotation = (currentRotation + 90) % 360;
+            img.style.transform = `rotate(${currentRotation}deg)`;
+            img.setAttribute('data-rotation', currentRotation);
+        }
+
+    </script>
+</body>
+</html>
