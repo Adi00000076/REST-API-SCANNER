@@ -1,0 +1,19 @@
+<!-- templates/scan/results.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan Results</title>
+</head>
+<body>
+    <h1>Scan Results</h1>
+    {% if images %}
+        <div>
+            {% for image in images %}
+                <img src="{{ image }}" alt="Scanned Image" style="max-width: 100%; height: auto;">
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No images to display.</p>
+    {% endif %}
+</body>
+</html>

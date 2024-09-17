@@ -3,74 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner Home</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        h5{
-            color: #0066cc;
-            text-align: center;
-            font-size: 1em;
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 1.2em;
-            color: #555;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .btn-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #218838;
-        }
-    </style>
+    <title>Scan Document</title>
+ 
 </head>
 <body>
     <div class="container">
-        <h5>Welcome to the Scanner Application RORO PROJECT
-        Gate in Scanner Applciation area </h3>
-  
-        <div class="btn-container">
-          
+        <h1>Scan and Display Documents</h1>
+        <form id="scanForm" method="post">
+            {% csrf_token %}
+            <label for="color_mode">Color Mode:</label>
+            <select id="color_mode" name="color_mode">
+                <option value="Color">Color</option>
+                <option value="Grayscale">Grayscale</option>
+            </select>
+            <br><br>
+            <label for="zoom_level">Zoom Level (%):</label>
+            <input type="number" id="zoom_level" name="zoom_level" value="100" min="10" max="200">
+            <br><br>
+            <label for="num_pages">Number of Pages:</label>
+            <input type="number" id="num_pages" name="num_pages" value="1" min="1" max="5">
+            <br><br>
+            <button type="submit">Scan Document</button>
+        </form>
+        
+
+        <div class="image-container" id="imageContainer">
+            <!-- Scanned images will be displayed here -->
         </div>
     </div>
+
+    <script>
+   document.getElementById('scanForm').onsubmit = async function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    const response = await fetch('/scan_document/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrfToken,  // Include CSRF token in headers
+        },
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        const imageContainer = document.getElementById('imageContainer');
+        imageContainer.innerHTML = '';  // Clear previous images
+
+        data.image_urls.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            imageContainer.appendChild(img);
+        });
+    } else {
+        console.error('Error scanning document:', response.statusText);
+    }
+};
+
+
+
+
+
+        
+    </script>
 </body>
 </html>

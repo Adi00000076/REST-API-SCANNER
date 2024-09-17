@@ -26,7 +26,12 @@ SECRET_KEY = 'pz7+wvbgtdk+-nsra9c05rxckh(_11&czk#j@saevc1j^t%s#-'
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'your_local_ip_address', '99.99.96.12']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '99.99.96.12',
+    '99.99.97.86',
+]
 
 
 # Application definition
@@ -40,9 +45,22 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'scannerApp',
+    'corsheaders'
 ]
 
+
+
+CORS_ALLOWED_ORIGINS = [
+       'http://127.0.0.1:5500',
+       'http://99.99.96.64:8080',
+       'http://localhost:8080',
+       'http://99.99.99.26'
+
+]
+
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,8 +68,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-     'django.middleware.csrf.CsrfViewMiddleware',
 ]
+
 
 ROOT_URLCONF = 'scanner_project.urls'
 
@@ -125,6 +143,15 @@ STATIC_URL = '/static/'
 
 
 
+import os
 
+# Define BASE_DIR if it's not already defined
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Media settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Ensure the MEDIA_ROOT directory exists
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT)
